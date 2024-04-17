@@ -11,12 +11,12 @@ info:
 servers:
   - url: http://127.0.0.1:5000/
 tags:
-  - name: Listenverwaltung
+  - name: Listenitemverwaltung
 paths:
   /list/{list_id}:
     get:
       tags:
-        - Listenverwaltung
+        - Listenitemverwaltung
       summary: Get all items from list
       operationId: getList
       parameters:
@@ -35,12 +35,15 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TodoEntry"
+        500:
+          description: Server Problems Brudi
+          content: {}
         404:
           description: Invalid list id
           content: {}
     delete:
       tags:
-        - Listenverwaltung
+        - Listenitemverwaltung
       summary: Delete a list
       operationId: deleteList
       parameters:
@@ -54,10 +57,13 @@ paths:
         200:
           description: List was deleted
           content: {}
+        500:
+          description: Brudi, Server Problems
+          content: {}
         404:
           description: Invalid list id
           content: {}
-  /list:
+  /todo-list:
     post:
       tags:
         - Listenverwaltung
@@ -71,16 +77,115 @@ paths:
               $ref: "#/components/schemas/TodoList"
         required: true
       responses:
-        200:
+        201:
           description: List added
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TodoList"
         500:
-          description: List could not be added
+          description: List could not be added, Server macht faxen
+          content: {}
+        406:
+          description: Das mit dem JSON geht so nicht
           content: {}
       x-codegen-request-body-name: body
+  /todo-list/{list_id}/entry:
+    post:
+      tags:
+        - ToDoList Entry
+      summary: Add new Entry to a list
+      operationId: addEntry
+      parameters:
+        - name: list_id
+          in: path
+          description: list id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: list object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TodoList"
+        required: true
+      responses:
+        201:
+          description: List added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodoList"
+        500:
+          description: Entry could not be added, Server macht faxen
+          content: {}
+        406:
+          description: Brudi, JSON JSON'ed nicht
+          content: {}
+      x-codegen-request-body-name: body
+  /todo-list/{list_id}/entry/{entry_id}:
+    patch:
+      tags:
+        - Entryitemverwaltung
+      summary: Updates entry
+      operationId: getList
+      parameters:
+        - name: list_id
+          in: path
+          description: list id
+          required: true
+          schema:
+            type: string
+        - name: entry_id
+          in: path
+          description: entry id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: List item returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TodoEntry"
+        500:
+          description: Server Problems Brudi
+          content: {}
+        404:
+          description: Invalid list id
+          content: {}
+    delete:
+      tags:
+        - Entryitemverwaltung
+      summary: Deletes an entry
+      operationId: entryItem
+      parameters:
+        - name: list_id
+          in: path
+          description: list id
+          required: true
+          schema:
+            type: string
+        - name: entry_id
+          in: path
+          description: entry id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: List was deleted
+          content: {}
+        500:
+          description: Brudi, Server Problems
+          content: {}
+        404:
+          description: Invalid list id
+          content: {}
 components:
   schemas:
     TodoList:
