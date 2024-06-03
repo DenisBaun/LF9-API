@@ -34,19 +34,19 @@ todos = [
     {'id': todo_1_id, 'name': 'Milch', 'description': '', 'list': todo_list_1_id},
     {'id': todo_2_id, 'name': 'Arbeitsblätter ausdrucken', 'description': '', 'list': todo_list_2_id},
     {'id': todo_3_id, 'name': 'Kinokarten kaufen', 'description': '', 'list': todo_list_3_id},
-    {'id': todo_3_id, 'name': 'Eier', 'description': '', 'list': todo_list_1_id},
+    {'id': todo_4_id, 'name': 'Eier', 'description': '', 'list': todo_list_1_id},
 ]
 
 # add some headers to allow cross origin access to the API on this server, necessary for using preview in Swagger Editor!
 @app.after_request
 def apply_cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE,PATCH'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
 # define endpoint for getting and deleting existing todo lists
-@app.route('/list/<list_id>', methods=['GET', 'DELETE'])
+@app.route('/todo-list/<list_id>', methods=['GET', 'DELETE'])
 def handle_list(list_id):
     # find todo list depending on given list id
     list_item = None
@@ -69,7 +69,7 @@ def handle_list(list_id):
 
 
 # define endpoint for adding a new list
-@app.route('/list', methods=['POST'])
+@app.route('/todo-list', methods=['POST'])
 def add_new_list():
     # make JSON from POST data (even if content type is not set correctly)
     new_list = request.get_json(force=True)
@@ -79,11 +79,21 @@ def add_new_list():
     todo_lists.append(new_list)
     return jsonify(new_list), 200
 
+# define endpoint for adding a new list entry
+@app.route('/todo-list/<list_id>/entry', methods=['POST']) 
+def add_new_list_entry():
+    # make JSON from POST data (even if content type is not set correctly)
+    new_list_entry = request.get_json(force=True)
+    print('Got new list entry to be added: {}'.format(add_new_list_entry))
+    # create id for new list, save it and return the list with id
+    add_new_list_entry['id'] = uuid.uuid4()
+    todo_lists.append(add_new_list_entry)
+    return jsonify(add_new_list_entry), 200
 
 # define endpoint for getting all lists
-@app.route('/lists', methods=['GET'])
-def get_all_lists():
-    return jsonify(todo_lists)
+#@app.route('/lists', methods=['GET'])
+#def get_all_lists():
+#    return jsonify(todo_lists)
 
 
 if __name__ == '__main__':
