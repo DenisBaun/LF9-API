@@ -79,21 +79,46 @@ def add_new_list():
     todo_lists.append(new_list)
     return jsonify(new_list), 200
 
-# define endpoint for adding a new list entry
-@app.route('/todo-list/<list_id>/entry', methods=['POST']) 
-def add_new_list_entry():
+# define endpoint for post list entries
+@app.route('/todolist/<list_id>/entry', methods=['POST'])
+def add_new_entry(list_id):
     # make JSON from POST data (even if content type is not set correctly)
-    new_list_entry = request.get_json(force=True)
-    print('Got new list entry to be added: {}'.format(add_new_list_entry))
-    # create id for new list, save it and return the list with id
-    add_new_list_entry['id'] = uuid.uuid4()
-    todo_lists.append(add_new_list_entry)
-    return jsonify(add_new_list_entry), 200
+    new_entry = request.get_json(force=True)
+    print('Got new enty to be added: {}'.format(new_entry))
+    new_entry['id'] = str(uuid.uuid4())
+    new_entry['list'] = list_id
+    todos.append(new_entry)
+    return jsonify(new_entry), 201
+
+# define endpoint for patch and delete an entry
+@app.route('/todo-list/<list_id>/entry/<entry_id>', methods=['PATCH', 'DELETE'])
+def handle_entry(entry_id, list_id):
+    entry_item = None
+    # Entry suchen
+    for e in todos:
+        if e['list'] == list_id:
+            if e['id'] == entry_id:
+                entry_item == e
+                break
+    # if the given entry is invalid, return status code 404
+    if not entry_item:
+        abort(404)
+    
+    if request.method == 'PATCH':
+        # Patch entry
+        entry_item['NAME'] = request.get_json(force=True)
+        return jsonify(entry_item), 200
+    elif request.method == 'DELETE':
+        # Delete entry
+        print('Deleting entry....')
+        todos.remove(entry_item)
+        return '', 200
+
 
 # define endpoint for getting all lists
-#@app.route('/lists', methods=['GET'])
-#def get_all_lists():
-#    return jsonify(todo_lists)
+@app.route('/lists', methods=['GET'])
+def get_all_lists():
+    return jsonify(todo_lists)
 
 
 if __name__ == '__main__':
